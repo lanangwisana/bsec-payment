@@ -1,303 +1,192 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Tagihan')
+@section('title', 'Kelola Tagihan')
+@section('header', 'Pengelolaan Tagihan')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0 text-gray-800">
-        <i class="bi bi-receipt me-2"></i>Manajemen Tagihan
-    </h1>
-    <div>
-        <a href="{{ route('admin.invoices.create') }}" class="btn btn-primary me-2">
-            <i class="bi bi-plus-circle me-1"></i>Tambah Tagihan
-        </a>
-        <a href="{{ route('admin.invoices.bulk-create') }}" class="btn btn-success">
-            <i class="bi bi-gear me-1"></i>Generate Tagihan
-        </a>
+<div class="data-table-container" style="margin-bottom: 24px;">
+    <div style="padding: 24px; border-bottom: 1px solid var(--border);">
+        <form action="{{ route('admin.invoices.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <div class="search-container" style="flex: 1; min-width: 300px;">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" name="search" class="search-input" placeholder="Cari Nama Siswa atau No. Invoice..." value="{{ request('search') }}">
+            </div>
+            
+            <select name="status" class="search-input" style="width: 200px; padding-left: 16px;">
+                <option value="">Semua Status</option>
+                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Belum Lunas</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
+            </select>
+            
+            <button type="submit" class="btn-premium">Filter</button>
+            <a href="{{ route('admin.invoices.index') }}" style="padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); background: white; color: var(--text-main); text-decoration: none; font-weight: 600; display: flex; align-items: center;">Reset</a>
+        </form>
     </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>No. Invoice</th>
+                <th>Nama Siswa</th>
+                <th>Periode</th>
+                <th>Total Tagihan</th>
+                <th>Status</th>
+                <th style="text-align: right;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($invoices as $invoice)
+            <tr>
+                <td style="font-family: monospace; font-weight: 600; color: var(--primary);">{{ $invoice->invoice_number }}</td>
+                <td>
+                    <div style="font-weight: 600;">{{ $invoice->student->name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $invoice->student->grade }} - {{ $invoice->student->school }}</div>
+                </td>
+                <td>{{ $invoice->month_name }} {{ $invoice->year }}</td>
+                <td style="font-weight: 700;">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
+                <td>
+                    <span class="badge badge-{{ $invoice->status }}">
+                        {{ $invoice->status == 'paid' ? 'Lunas' : ($invoice->status == 'pending' ? 'Menunggu' : 'Belum Lunas') }}
+                    </span>
+                </td>
+                <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px; align-items: center;">
+                    @if($invoice->status == 'unpaid')
+                        <button onclick="openPaymentModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', {{ $invoice->amount }})" class="btn-premium" style="padding: 8px 16px; font-size: 0.875rem;">
+                            <i class="bi bi-cash-stack"></i> Bayar
+                        </button>
+                    @elseif($invoice->status == 'pending')
+                        <a href="{{ route('admin.invoices.show', $invoice->id) }}" class="btn-premium" style="padding: 8px 16px; font-size: 0.875rem; background: var(--warning); text-decoration: none; color: white;">
+                            <i class="bi bi-shield-check"></i> Konfirmasi
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.invoices.show', $invoice->id) }}" style="padding: 8px; color: var(--text-muted); text-decoration: none;"><i class="bi bi-eye"></i></a>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 60px; color: var(--text-muted);">
+                    <i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 12px; opacity: 0.3;"></i>
+                    Data tagihan tidak ditemukan.
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+    
+    @if($invoices->hasPages())
+    <div style="padding: 24px; border-top: 1px solid var(--border); display: flex; justify-content: center;">
+        {{ $invoices->links() }}
+    </div>
+    @endif
 </div>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 fw-bold text-primary">Filter Tagihan</h6>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Bulan</label>
-                <select name="month" class="form-select" onchange="this.form.submit()">
-                    <option value="">Semua Bulan</option>
-                    @for($i = 1; $i <= 12; $i++)
-                    <option value="{{ $i }}" {{ request('month') == $i ? 'selected' : '' }}>
-                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
-                    </option>
-                    @endfor
-                </select>
+<!-- Payment Modal Overlay -->
+<div id="paymentModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; width: 100%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalIn 0.3s ease-out;">
+        <div style="padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 style="font-size: 1.25rem; font-weight: 700;">Input Pembayaran</h3>
+            <button onclick="closePaymentModal()" style="background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted);">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <form id="paymentForm" method="POST" enctype="multipart/form-data" style="padding: 32px;">
+            @csrf
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">No. Invoice</label>
+                <input type="text" id="modal_invoice_number" class="search-input" style="background: #f8fafc; cursor: not-allowed;" readonly>
             </div>
             
-            <div class="col-md-3">
-                <label class="form-label">Tahun</label>
-                <select name="year" class="form-select" onchange="this.form.submit()">
-                    <option value="">Semua Tahun</option>
-                    @for($i = date('Y'); $i >= 2020; $i--)
-                    <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>
-                        {{ $i }}
-                    </option>
-                    @endfor
-                </select>
-            </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
-                    <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Terlambat</option>
-                </select>
-            </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">Siswa</label>
-                <select name="student_id" class="form-select" onchange="this.form.submit()">
-                    <option value="">Semua Siswa</option>
-                    @foreach($students as $student)
-                    <option value="{{ $student->id }}" {{ request('student_id') == $student->id ? 'selected' : '' }}>
-                        {{ $student->name }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="col-md-12 mt-3">
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Nominal Pembayaran</label>
                 <div class="input-group">
-                    <input type="text" name="search" class="form-control" 
-                           placeholder="Cari berdasarkan no invoice, nama siswa..." 
-                           value="{{ request('search') }}">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    @if(request()->hasAny(['month', 'year', 'status', 'student_id', 'search']))
-                    <a href="{{ route('admin.invoices.index') }}" class="btn btn-outline-secondary">
-                        Reset
-                    </a>
-                    @endif
+                    <span class="input-prefix">Rp</span>
+                    <input type="hidden" name="amount" id="raw_amount">
+                    <input type="text" id="display_amount" class="search-input" style="font-size: 1.25rem; font-weight: 700; color: var(--primary);" placeholder="0" required oninput="formatCurrency(this)">
                 </div>
             </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Metode</label>
+                    <select name="method" class="search-input" style="padding-left: 16px;">
+                        <option value="Cash">Tunai (Cash)</option>
+                        <option value="Transfer">Transfer Bank</option>
+                        <option value="QRIS">QRIS</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Tanggal</label>
+                    <input type="date" name="paid_at" class="search-input" value="{{ date('Y-m-d') }}" required>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Unggah Bukti Bayar (Opsional)</label>
+                <input type="file" name="proof" style="display: block; width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 12px; background: #f8fafc; font-size: 0.875rem;">
+                <small style="color: var(--text-muted); display: block; margin-top: 4px;">Format: JPG, PNG. Maks: 2MB</small>
+            </div>
+            
+            <div style="margin-bottom: 32px;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Catatan (Opsional)</label>
+                <textarea name="notes" class="search-input uppercase-input" style="height: 100px; padding: 12px; resize: none;"></textarea>
+            </div>
+            
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 16px; font-size: 1rem; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);">
+                <i class="bi bi-send-fill" style="margin-right: 8px;"></i> Kirim Untuk Verifikasi
+            </button>
         </form>
     </div>
 </div>
 
-<div class="card shadow">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 fw-bold text-primary">Daftar Tagihan</h6>
-        <div>
-            <span class="badge bg-primary">{{ $invoices->total() }} Tagihan</span>
-        </div>
-    </div>
-    <div class="card-body">
-        @if($invoices->count() > 0)
-        <div class="table-responsive">
-            <table class="table table-hover datatable">
-                <thead>
-                    <tr>
-                        <th>No. Invoice</th>
-                        <th>Siswa</th>
-                        <th>Bulan/Tahun</th>
-                        <th>Jatuh Tempo</th>
-                        <th>Jumlah</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($invoices as $invoice)
-                    <tr>
-                        <td>
-                            <strong>{{ $invoice->invoice_number }}</strong><br>
-                            <small class="text-muted">{{ $invoice->created_at->format('d/m/Y') }}</small>
-                        </td>
-                        <td>
-                            <strong>{{ $invoice->student->name }}</strong><br>
-                            <small class="text-muted">{{ $invoice->student->program }}</small>
-                        </td>
-                        <td>
-                            {{ $invoice->month_name }} {{ $invoice->year }}
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') }}
-                            @if($invoice->is_overdue)
-                            <br>
-                            <small class="text-danger">
-                                <i class="bi bi-exclamation-triangle"></i> 
-                                {{ $invoice->days_overdue }} hari
-                            </small>
-                            @endif
-                        </td>
-                        <td>
-                            <strong class="text-primary">
-                                Rp {{ number_format($invoice->amount, 0, ',', '.') }}
-                            </strong>
-                            @if($invoice->late_fee > 0)
-                            <br>
-                            <small class="text-danger">
-                                + denda: Rp {{ number_format($invoice->late_fee, 0, ',', '.') }}
-                            </small>
-                            @endif
-                        </td>
-                        <td>
-                            @if($invoice->status == 'paid')
-                            <span class="badge bg-success">LUNAS</span>
-                            @elseif($invoice->status == 'overdue')
-                            <span class="badge bg-danger">TERLAMBAT</span>
-                            @else
-                            <span class="badge bg-warning">MENUNGGU</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ route('admin.invoices.show', $invoice) }}" 
-                                   class="btn btn-outline-primary" title="Detail">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{{ route('admin.invoices.edit', $invoice) }}" 
-                                   class="btn btn-outline-secondary" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{{ route('admin.invoices.download', $invoice) }}" 
-                                   class="btn btn-outline-info" title="Download PDF" target="_blank">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                                <button type="button" class="btn btn-outline-danger" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#deleteInvoiceModal{{ $invoice->id }}"
-                                        title="Hapus">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+<style>
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>
 
-                    <!-- Delete Modal -->
-                    <div class="modal fade" id="deleteInvoiceModal{{ $invoice->id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Konfirmasi Hapus</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Apakah Anda yakin ingin menghapus tagihan:</p>
-                                    <div class="alert alert-danger">
-                                        <strong>#{{ $invoice->invoice_number }}</strong><br>
-                                        {{ $invoice->student->name }} - {{ $invoice->month_name }} {{ $invoice->year }}<br>
-                                        Rp {{ number_format($invoice->amount, 0, ',', '.') }}
-                                    </div>
-                                    @if($invoice->payment)
-                                    <div class="alert alert-warning">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        Tagihan ini sudah memiliki pembayaran. 
-                                        Hapus pembayaran terlebih dahulu.
-                                    </div>
-                                    @endif
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    @if(!$invoice->payment)
-                                    <form action="{{ route('admin.invoices.destroy', $invoice) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Hapus Tagihan</button>
-                                    </form>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <div>
-                Menampilkan {{ $invoices->firstItem() }} - {{ $invoices->lastItem() }} 
-                dari {{ $invoices->total() }} tagihan
-            </div>
-            <div>
-                {{ $invoices->links() }}
-            </div>
-        </div>
-        @else
-        <div class="text-center py-5">
-            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-            <h4 class="mt-3">Belum ada tagihan</h4>
-            <p class="text-muted">Buat tagihan baru atau generate tagihan untuk bulan ini.</p>
-            <div class="mt-3">
-                <a href="{{ route('admin.invoices.create') }}" class="btn btn-primary me-2">
-                    <i class="bi bi-plus-circle me-1"></i>Tambah Tagihan
-                </a>
-                <a href="{{ route('admin.invoices.bulk-create') }}" class="btn btn-success">
-                    <i class="bi bi-gear me-1"></i>Generate Tagihan
-                </a>
-            </div>
-        </div>
-        @endif
-    </div>
-</div>
-
-<!-- Summary Cards -->
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card shadow border-left-primary">
-            <div class="card-body">
-                <div class="text-primary fw-bold">Total Tagihan</div>
-                <h3 class="mt-2">{{ $summary['total'] }}</h3>
-                <div class="text-muted">Semua waktu</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card shadow border-left-success">
-            <div class="card-body">
-                <div class="text-success fw-bold">Lunas</div>
-                <h3 class="mt-2">{{ $summary['paid'] }}</h3>
-                <div class="text-muted">{{ $summary['paid_percentage'] }}% dari total</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card shadow border-left-warning">
-            <div class="card-body">
-                <div class="text-warning fw-bold">Pending</div>
-                <h3 class="mt-2">{{ $summary['pending'] }}</h3>
-                <div class="text-muted">Menunggu pembayaran</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card shadow border-left-danger">
-            <div class="card-body">
-                <div class="text-danger fw-bold">Terlambat</div>
-                <h3 class="mt-2">{{ $summary['overdue'] }}</h3>
-                <div class="text-muted">Perlu ditagih</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@push('scripts')
 <script>
-    $(document).ready(function() {
-        $('.datatable').DataTable({
-            "order": [[0, "desc"]],
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"
-            },
-            "pageLength": 50,
-            "dom": '<"row"<"col-md-6"l><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>'
-        });
-    });
+function formatCurrency(input) {
+    // Ambil angka saja
+    let value = input.value.replace(/[^0-9]/g, '');
+    
+    // Simpan nilai asli ke hidden input untuk backend
+    document.getElementById('raw_amount').value = value;
+    
+    // Format tampilan dengan titik
+    if (value) {
+        input.value = new Intl.NumberFormat('id-ID').format(value);
+    } else {
+        input.value = '';
+    }
+}
+
+function openPaymentModal(invoiceId, invoiceNumber, amount) {
+    const modal = document.getElementById('paymentModal');
+    const form = document.getElementById('paymentForm');
+    const displayInput = document.getElementById('display_amount');
+    
+    document.getElementById('modal_invoice_number').value = invoiceNumber;
+    
+    // Set nilai awal
+    displayInput.value = amount;
+    formatCurrency(displayInput); // Trigger format awal
+    
+    form.action = `/admin/payments/${invoiceId}`;
+    modal.style.display = 'flex';
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('paymentModal');
+    if (event.target == modal) {
+        closePaymentModal();
+    }
+}
 </script>
-@endpush
 @endsection
