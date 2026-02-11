@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $fillable = [
-        'name', 'is_active', 'grade', 'school', 'program', 
+        'name', 'is_active', 'grade', 'classroom', 'school', 'program', 
         'parent_name', 'parent_phone', 'parent_email', 
         'registration_date', 'monthly_fee', 'address', 'birth_place_date'
     ];
@@ -24,6 +24,7 @@ class Student extends Model
     public function setBirthPlaceDateAttribute($value) { $this->attributes['birth_place_date'] = strtoupper($value); }
     public function setAddressAttribute($value) { $this->attributes['address'] = strtoupper($value); }
 
+    public function setClassroomAttribute($value) { $this->attributes['classroom'] = strtoupper($value); }
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
