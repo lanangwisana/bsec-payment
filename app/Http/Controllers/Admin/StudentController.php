@@ -41,6 +41,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'grade' => 'required|string',
+            'classroom' => 'nullable|string',
             'school' => 'required|string',
             'program' => 'required|string',
             'registration_date' => 'required|date',
@@ -82,6 +83,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'grade' => 'required|string',
+            'classroom' => 'nullable|string',
             'school' => 'required|string',
             'program' => 'required|string',
             'registration_date' => 'required|date',
