@@ -9,7 +9,7 @@
         <form action="{{ route('admin.invoices.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap;">
             <div class="search-container" style="flex: 1; min-width: 300px;">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" name="search" class="search-input" placeholder="Cari Nama Siswa atau No. Invoice..." value="{{ request('search') }}">
+                <input type="text" name="search" class="search-input uppercase-input" placeholder="Cari Nama Siswa atau No. Invoice..." value="{{ request('search') }}">
             </div>
             
             <select name="status" class="search-input" style="width: 200px; padding-left: 16px;">
