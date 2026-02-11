@@ -1,286 +1,162 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Siswa: ' . $student->name)
+@section('title', 'Edit Data Siswa - ' . $student->name)
+@section('header', 'Perbarui Data Siswa')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card shadow">
-            <div class="card-header py-3 bg-primary text-white">
-                <h6 class="m-0 fw-bold">
-                    <i class="bi bi-pencil-square me-2"></i>Edit Data Siswa
-                </h6>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('admin.students.update', $student) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">ID Siswa</label>
-                            <input type="text" class="form-control" value="{{ $student->student_id }}" readonly>
-                            <div class="form-text">ID siswa tidak dapat diubah</div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" 
-                                   value="{{ old('name', $student->name) }}" required>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kelas <span class="text-danger">*</span></label>
-                            <input type="text" name="grade" class="form-control" 
-                                   value="{{ old('grade', $student->grade) }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Sekolah <span class="text-danger">*</span></label>
-                            <input type="text" name="school" class="form-control" 
-                                   value="{{ old('school', $student->school) }}" required>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Program <span class="text-danger">*</span></label>
-                            <select name="program" class="form-select" required>
-                                <option value="SD" {{ $student->program == 'SD' ? 'selected' : '' }}>SD</option>
-                                <option value="SMP" {{ $student->program == 'SMP' ? 'selected' : '' }}>SMP</option>
-                                <option value="SMA" {{ $student->program == 'SMA' ? 'selected' : '' }}>SMA</option>
-                                <option value="UTBK" {{ $student->program == 'UTBK' ? 'selected' : '' }}>UTBK</option>
-                                <option value="Privat" {{ $student->program == 'Privat' ? 'selected' : '' }}>Privat</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Biaya Bulanan <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">Rp</span>
-                                <input type="number" name="monthly_fee" class="form-control" 
-                                       value="{{ old('monthly_fee', $student->monthly_fee) }}" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">No. Telepon Orang Tua <span class="text-danger">*</span></label>
-                            <input type="tel" name="parent_phone" class="form-control" 
-                                   value="{{ old('parent_phone', $student->parent_phone) }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Email Orang Tua</label>
-                            <input type="email" name="parent_email" class="form-control" 
-                                   value="{{ old('parent_email', $student->parent_email) }}">
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Alamat</label>
-                        <textarea name="address" class="form-control" rows="2">{{ old('address', $student->address) }}</textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input type="checkbox" name="is_active" class="form-check-input" 
-                                   id="is_active" {{ $student->is_active ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_active">Siswa Aktif</label>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Perhatian:</strong> Mengubah biaya bulanan hanya mempengaruhi tagihan yang akan datang, 
-                        tidak mengubah tagihan yang sudah dibuat.
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('admin.students.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Kembali
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-1"></i>Simpan Perubahan
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Student Statistics -->
-        <div class="card shadow mt-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-graph-up me-2"></i>Statistik Siswa
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <h4 class="text-primary">{{ $stats['total_invoices'] }}</h4>
-                        <p class="text-muted mb-0">Total Tagihan</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h4 class="text-success">{{ $stats['paid_invoices'] }}</h4>
-                        <p class="text-muted mb-0">Lunas</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h4 class="text-warning">{{ $stats['pending_invoices'] }}</h4>
-                        <p class="text-muted mb-0">Menunggu</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h4 class="text-danger">{{ $stats['overdue_invoices'] }}</h4>
-                        <p class="text-muted mb-0">Terlambat</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4">
-        <!-- Student Information -->
-        <div class="card shadow mb-4">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
-                         style="width: 80px; height: 80px;">
-                        <i class="bi bi-person" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-                <h4>{{ $student->name }}</h4>
-                <p class="text-muted mb-2">
-                    <i class="bi bi-mortarboard me-1"></i>
-                    {{ $student->grade }} | {{ $student->school }}
-                </p>
-                <p class="text-muted mb-3">
-                    <i class="bi bi-book me-1"></i>
-                    {{ $student->program }}
-                </p>
-                
-                <div class="border-top pt-3">
-                    <h6>Informasi</h6>
-                    <table class="table table-sm">
-                        <tr>
-                            <td>Bergabung</td>
-                            <td>{{ $student->created_at->format('d M Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td>Status</td>
-                            <td>
-                                <span class="badge bg-{{ $student->is_active ? 'success' : 'danger' }}">
-                                    {{ $student->is_active ? 'Aktif' : 'Nonaktif' }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Telepon</td>
-                            <td>{{ $student->parent_phone }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Quick Actions -->
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-lightning me-2"></i>Aksi Cepat
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('admin.invoices.create', ['student_id' => $student->id]) }}" 
-                       class="btn btn-primary">
-                        <i class="bi bi-receipt me-2"></i>Buat Tagihan
-                    </a>
-                    <a href="https://wa.me/{{ $student->parent_phone }}" 
-                       target="_blank" class="btn btn-success">
-                        <i class="bi bi-whatsapp me-2"></i>WhatsApp
-                    </a>
-                    <a href="tel:{{ $student->parent_phone }}" 
-                       class="btn btn-outline-primary">
-                        <i class="bi bi-telephone me-2"></i>Telepon
-                    </a>
-                    <button type="button" class="btn btn-outline-warning" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#resetPasswordModal">
-                        <i class="bi bi-key me-2"></i>Reset Password
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Invoices -->
-        <div class="card shadow mt-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-clock-history me-2"></i>Tagihan Terakhir
-                </h6>
-            </div>
-            <div class="card-body">
-                @if($recentInvoices->count() > 0)
-                <div class="list-group list-group-flush">
-                    @foreach($recentInvoices as $invoice)
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">{{ $invoice->month_name }} {{ $invoice->year }}</h6>
-                            <span class="badge bg-{{ $invoice->status == 'paid' ? 'success' : 'warning' }}">
-                                {{ $invoice->status == 'paid' ? 'Lunas' : 'Pending' }}
-                            </span>
-                        </div>
-                        <p class="mb-1">
-                            Rp {{ number_format($invoice->amount, 0, ',', '.') }}
-                            <small class="text-muted">| Jatuh tempo: {{ $invoice->due_date->format('d M') }}</small>
-                        </p>
-                        <small class="text-muted">
-                            {{ $invoice->created_at->diffForHumans() }}
-                        </small>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <p class="text-muted text-center py-3">Belum ada tagihan</p>
-                @endif
-            </div>
-        </div>
-    </div>
+<div style="margin-bottom: 32px;">
+    <a href="{{ route('admin.students.show', $student->id) }}" style="text-decoration: none; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-arrow-left"></i> Kembali ke Profil
+    </a>
 </div>
 
-<!-- Reset Password Modal -->
-<div class="modal fade" id="resetPasswordModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reset Password Siswa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+    <form action="{{ route('admin.students.update', $student->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
+            <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 0; color: var(--primary);">
+                <i class="bi bi-person-badge-fill" style="margin-right: 8px;"></i> Data Pribadi Siswa
+            </h3>
+            
+            <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <label style="font-size: 0.875rem; font-weight: 600;">Status Siswa Aktif?</label>
+                <select name="is_active" class="search-input" style="width: 120px; padding: 6px 12px;">
+                    <option value="1" {{ $student->is_active ? 'selected' : '' }}>Ya</option>
+                    <option value="0" {{ !$student->is_active ? 'selected' : '' }}>Tidak</option>
+                </select>
             </div>
-            <form action="{{ route('admin.students.reset-password', $student) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p>Reset password untuk:</p>
-                    <div class="alert alert-info">
-                        <strong>{{ $student->name }}</strong><br>
-                        {{ $student->parent_phone }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Password Baru</label>
-                        <input type="text" name="password" class="form-control" 
-                               value="{{ \Illuminate\Support\Str::random(8) }}" readonly>
-                        <div class="form-text">Password akan dikirim via WhatsApp</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Reset & Kirim Password</button>
-                </div>
-            </form>
         </div>
-    </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+            <div style="grid-column: span 2;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Nama Lengkap Siswa</label>
+                <input type="text" name="name" class="search-input uppercase-input" value="{{ $student->name }}" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Tempat, Tanggal Lahir</label>
+                <input type="text" name="birth_place_date" class="search-input uppercase-input" value="{{ $student->birth_place_date }}">
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
+                <select name="grade" id="grade_edit_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptionsEdit()" required>
+                    <option value="SD" {{ $student->grade == 'SD' ? 'selected' : '' }}>SD</option>
+                    <option value="SMP" {{ $student->grade == 'SMP' ? 'selected' : '' }}>SMP</option>
+                    <option value="SMA" {{ $student->grade == 'SMA' ? 'selected' : '' }}>SMA</option>
+                </select>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Sekolah/Asal Instansi</label>
+                <input type="text" name="school" class="search-input uppercase-input" value="{{ $student->school }}" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Program yang Diambil</label>
+                <select name="program" id="program_edit_select" class="search-input" style="padding-left: 16px;" data-selected="{{ $student->program }}" required>
+                    <!-- Options will be populated by JS -->
+                </select>
+            </div>
+        </div>
+
+        <script>
+            function updateProgramOptionsEdit() {
+                const grade = document.getElementById('grade_edit_select').value;
+                const programSelect = document.getElementById('program_edit_select');
+                const selectedProgram = programSelect.getAttribute('data-selected');
+                
+                // Clear existing options
+                programSelect.innerHTML = '';
+                
+                if (grade === 'SMA') {
+                    const options = ['Reguler', 'SNBT'];
+                    options.forEach(opt => {
+                        const el = document.createElement('option');
+                        el.value = opt;
+                        el.textContent = opt;
+                        if (opt === selectedProgram) el.selected = true;
+                        programSelect.appendChild(el);
+                    });
+                } else {
+                    const el = document.createElement('option');
+                    el.value = 'Reguler';
+                    el.textContent = 'Reguler';
+                    programSelect.appendChild(el);
+                }
+            }
+            
+            // Initialize on load
+            document.addEventListener('DOMContentLoaded', function() {
+                updateProgramOptionsEdit();
+            });
+        </script>
+
+        <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 32px; color: var(--primary);">
+            <i class="bi bi-house-door-fill" style="margin-right: 8px;"></i> Data Orang Tua & Alamat
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Nama Orang Tua / Wali</label>
+                <input type="text" name="parent_name" class="search-input uppercase-input" value="{{ $student->parent_name }}" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">No. WhatsApp Orang Tua</label>
+                <input type="text" name="parent_phone" class="search-input" value="{{ $student->parent_phone }}" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Email Orang Tua (Opsional)</label>
+                <input type="email" name="parent_email" class="search-input" value="{{ $student->parent_email }}">
+            </div>
+            
+            <div style="grid-column: span 2;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Alamat Lengkap</label>
+                <textarea name="address" class="search-input uppercase-input" style="height: 100px; padding: 12px; resize: none;">{{ $student->address }}</textarea>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 32px; color: var(--primary);">
+            <i class="bi bi-calendar-check-fill" style="margin-right: 8px;"></i> Pengaturan Tagihan Otomatis
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid var(--border);">
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Tanggal Pendaftaran</label>
+                <input type="date" name="registration_date" class="search-input" value="{{ $student->registration_date ? $student->registration_date->format('Y-m-d') : '' }}" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Biaya Kursus Per Bulan</label>
+                <div class="input-group">
+                    <span class="input-prefix">Rp</span>
+                    <input type="hidden" name="monthly_fee" id="raw_monthly_fee" value="{{ (int)$student->monthly_fee }}">
+                    <input type="text" id="display_monthly_fee" class="search-input" style="padding-left: 48px; font-weight: 700; color: var(--primary);" value="{{ number_format($student->monthly_fee, 0, ',', '.') }}" required oninput="formatFee(this)">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function formatFee(input) {
+                let value = input.value.replace(/[^0-9]/g, '');
+                document.getElementById('raw_monthly_fee').value = value;
+                if (value) {
+                    input.value = new Intl.NumberFormat('id-ID').format(value);
+                } else {
+                    input.value = '';
+                }
+            }
+        </script>
+
+        <div style="display: flex; gap: 16px; justify-content: flex-end;">
+            <button type="submit" class="btn-premium" style="padding: 12px 40px; font-size: 1rem;">
+                <i class="bi bi-save-fill" style="margin-right: 8px;"></i> Simpan Perubahan
+            </button>
+        </div>
+    </form>
 </div>
 @endsection
