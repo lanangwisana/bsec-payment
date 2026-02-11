@@ -26,18 +26,18 @@ class PaymentController extends Controller
 
         $proofPath = null;
         if ($request->hasFile('proof')) {
-            $proofPath = $request->file('proof')->store('payment_proofs', 'public');
+            $proofPath = Storage::disk('public')->putFile('payment_proofs', $request->file('proof'));
         }
 
         Payment::create([
             'invoice_id' => $invoice->id,
             'user_id' => Auth::id() ?? 1,
-            'amount' => $request->amount,
-            'method' => $request->method,
-            'paid_at' => $request->paid_at,
+            'amount' => $request->input('amount'),
+            'method' => $request->input('method'),
+            'paid_at' => $request->input('paid_at'),
             'proof_path' => $proofPath,
-            'notes' => $request->notes,
-            'status' => 'pending', // Status awal tetap pending
+            'notes' => $request->input('notes'),
+            'status' => 'pending',
         ]);
 
         // Status invoice tetap 'pending' atau 'unpaid', tidak langsung lunas
