@@ -1,28 +1,31 @@
 <?php
 
-use App\Http\Controllers\StudentController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\StudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.dashboard');
 });
 
-// student routing
-Route::prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+// Admin Routing
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    Route::get('/invoices', [StudentController::class, 'invoices'])->name('invoices.index');
-    Route::get('/invoices/{invoice}', [StudentController::class, 'showInvoice'])->name('invoices.show');
-    Route::get('/invoices/{invoice}/download', [StudentController::class, 'dashboard'])->name('invoices.download');
+    // Student Management
+    Route::resource('students', StudentController::class);
     
-    Route::post('/payments/{invoice}', [StudentController::class, 'storePayment'])->name('payments.store');
+    // Invoices Management
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     
-    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
-    Route::get('/payments/history', [StudentController::class, 'paymentHistory'])->name('payments.history');
-    Route::get('/notifications/check', [StudentController::class, 'dashboard'])->name('notifications.check');
+    // Payment Action
+    Route::post('/payments/{invoice}', [PaymentController::class, 'store'])->name('payments.store');
+    Route::post('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
 });
 
-// Auth & Admin Placeholders agar tidak error
+// Auth Placeholders
 Route::get('/login', function() { return "Halaman Login"; })->name('login');
 Route::post('/logout', function() { return "Proses Logout"; })->name('logout');
-Route::get('/admin/dashboard', function() { return "Admin Dashboard"; })->name('admin.dashboard');
