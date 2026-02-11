@@ -40,13 +40,19 @@
                 <input type="text" name="birth_place_date" class="search-input uppercase-input" value="{{ $student->birth_place_date }}">
             </div>
             
-            <div>
-                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
-                <select name="grade" id="grade_edit_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptionsEdit()" required>
-                    <option value="SD" {{ $student->grade == 'SD' ? 'selected' : '' }}>SD</option>
-                    <option value="SMP" {{ $student->grade == 'SMP' ? 'selected' : '' }}>SMP</option>
-                    <option value="SMA" {{ $student->grade == 'SMA' ? 'selected' : '' }}>SMA</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
+                    <select name="grade" id="grade_edit_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptionsEdit()" required>
+                        <option value="SD" {{ $student->grade == 'SD' ? 'selected' : '' }}>SD</option>
+                        <option value="SMP" {{ $student->grade == 'SMP' ? 'selected' : '' }}>SMP</option>
+                        <option value="SMA" {{ $student->grade == 'SMA' ? 'selected' : '' }}>SMA</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Kelas</label>
+                    <input type="text" name="classroom" class="search-input uppercase-input" value="{{ $student->classroom }}" placeholder="Misal: 10 IPA 1">
+                </div>
             </div>
             
             <div>
