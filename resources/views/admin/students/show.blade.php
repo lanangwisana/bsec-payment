@@ -34,7 +34,7 @@
                 
                 <div style="margin-bottom: 20px;">
                     <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Program & Kelas</label>
-                    <div style="font-weight: 600;">{{ $student->program }}</div>
+                    <div style="font-weight: 600;">{{ $student->program }} {{ $student->classroom ? '('.$student->classroom.')' : '' }}</div>
                     <div style="font-size: 0.875rem;">{{ $student->grade }} - {{ $student->school }}</div>
                 </div>
                 
