@@ -1,275 +1,148 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Siswa Baru')
+@section('title', 'Pendaftaran Siswa Baru')
+@section('header', 'Formulir Pendaftaran')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-person-plus me-2"></i>Tambah Siswa Baru
-                </h6>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('admin.students.store') }}" method="POST" id="studentForm">
-                    @csrf
-                    
-                    <h6 class="text-primary mb-3"><i class="bi bi-person me-2"></i>Data Pribadi</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" 
-                                   value="{{ old('name') }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Jenis Kelamin</label>
-                            <select name="gender" class="form-select">
-                                <option value="">Pilih...</option>
-                                <option value="L" {{ old('gender') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                <option value="P" {{ old('gender') == 'P' ? 'selected' : '' }}>Perempuan</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Lahir</label>
-                            <input type="date" name="birth_date" class="form-control" 
-                                   value="{{ old('birth_date') }}">
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tempat Lahir</label>
-                            <input type="text" name="birth_place" class="form-control" 
-                                   value="{{ old('birth_place') }}">
-                        </div>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <h6 class="text-primary mb-3"><i class="bi bi-mortarboard me-2"></i>Data Pendidikan</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kelas <span class="text-danger">*</span></label>
-                            <input type="text" name="grade" class="form-control" 
-                                   value="{{ old('grade') }}" required 
-                                   placeholder="Contoh: 6 SD, 9 SMP, 12 SMA">
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Sekolah <span class="text-danger">*</span></label>
-                            <input type="text" name="school" class="form-control" 
-                                   value="{{ old('school') }}" required>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Program Les <span class="text-danger">*</span></label>
-                            <select name="program" class="form-select" required>
-                                <option value="">Pilih Program...</option>
-                                <option value="SD" {{ old('program') == 'SD' ? 'selected' : '' }}>SD</option>
-                                <option value="SMP" {{ old('program') == 'SMP' ? 'selected' : '' }}>SMP</option>
-                                <option value="SMA" {{ old('program') == 'SMA' ? 'selected' : '' }}>SMA</option>
-                                <option value="UTBK" {{ old('program') == 'UTBK' ? 'selected' : '' }}>UTBK</option>
-                                <option value="Privat" {{ old('program') == 'Privat' ? 'selected' : '' }}>Privat</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Biaya Bulanan <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">Rp</span>
-                                <input type="number" name="monthly_fee" class="form-control" 
-                                       value="{{ old('monthly_fee') }}" required 
-                                       placeholder="500000">
-                            </div>
-                            <div class="form-text">Biaya les per bulan</div>
-                        </div>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <h6 class="text-primary mb-3"><i class="bi bi-telephone me-2"></i>Kontak Orang Tua/Wali</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Orang Tua/Wali <span class="text-danger">*</span></label>
-                            <input type="text" name="parent_name" class="form-control" 
-                                   value="{{ old('parent_name') }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Hubungan <span class="text-danger">*</span></label>
-                            <select name="parent_relation" class="form-select" required>
-                                <option value="">Pilih...</option>
-                                <option value="Ibu" {{ old('parent_relation') == 'Ibu' ? 'selected' : '' }}>Ibu</option>
-                                <option value="Ayah" {{ old('parent_relation') == 'Ayah' ? 'selected' : '' }}>Ayah</option>
-                                <option value="Wali" {{ old('parent_relation') == 'Wali' ? 'selected' : '' }}>Wali</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">No. Telepon <span class="text-danger">*</span></label>
-                            <input type="tel" name="parent_phone" class="form-control" 
-                                   value="{{ old('parent_phone') }}" required 
-                                   placeholder="0812-3456-7890">
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="parent_email" class="form-control" 
-                                   value="{{ old('parent_email') }}">
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Alamat</label>
-                        <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Informasi Tambahan</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Bergabung <span class="text-danger">*</span></label>
-                            <input type="date" name="join_date" class="form-control" 
-                                   value="{{ old('join_date', date('Y-m-d')) }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label>
-                            <div class="form-check form-switch mt-2">
-                                <input type="checkbox" name="is_active" class="form-check-input" 
-                                       id="is_active" checked>
-                                <label class="form-check-label" for="is_active">Siswa Aktif</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Informasi Kesehatan</label>
-                        <textarea name="health_info" class="form-control" rows="2" 
-                                  placeholder="Contoh: Alergi, kondisi khusus, dll.">{{ old('health_info') }}</textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Catatan</label>
-                        <textarea name="notes" class="form-control" rows="2" 
-                                  placeholder="Catatan khusus tentang siswa">{{ old('notes') }}</textarea>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Informasi Login:</strong> 
-                        Sistem akan secara otomatis membuat akun login untuk siswa/orang tua 
-                        dengan mengirimkan kredensial ke nomor telepon yang terdaftar.
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('admin.students.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Kembali
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-1"></i>Simpan Data Siswa
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4">
-        <!-- Quick Guide -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-lightbulb me-2"></i>Panduan Pengisian
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning">
-                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Perhatian!</h6>
-                    <p class="mb-0">Pastikan data yang diisi akurat untuk menghindari kesalahan dalam pembuatan tagihan.</p>
-                </div>
-                
-                <h6>Tips:</h6>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item px-0">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        Isi nomor telepon dengan benar untuk notifikasi
-                    </li>
-                    <li class="list-group-item px-0">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        Biaya bulanan menentukan nominal tagihan
-                    </li>
-                    <li class="list-group-item px-0">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        Program menentukan pengelompokan siswa
-                    </li>
-                    <li class="list-group-item px-0">
-                        <i class="bi bi-check-circle text-success me-2"></i>
-                        Status aktif untuk siswa yang masih les
-                    </li>
-                </ul>
-            </div>
-        </div>
-        
-        <!-- Recent Students -->
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 fw-bold text-primary">
-                    <i class="bi bi-clock-history me-2"></i>Siswa Terbaru
-                </h6>
-            </div>
-            <div class="card-body">
-                @if($recentStudents->count() > 0)
-                <div class="list-group list-group-flush">
-                    @foreach($recentStudents as $student)
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">{{ $student->name }}</h6>
-                            <small>{{ $student->created_at->diffForHumans() }}</small>
-                        </div>
-                        <p class="mb-1">{{ $student->grade }} | {{ $student->program }}</p>
-                        <small class="text-muted">
-                            Rp {{ number_format($student->monthly_fee, 0, ',', '.') }}/bln
-                        </small>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <p class="text-muted text-center py-3">Belum ada data siswa</p>
-                @endif
-            </div>
-        </div>
-    </div>
+<div style="margin-bottom: 32px;">
+    <a href="{{ route('admin.students.index') }}" style="text-decoration: none; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-arrow-left"></i> Kembali ke Daftar Siswa
+    </a>
 </div>
 
-@push('scripts')
-<script>
-    // Generate student ID
-    function generateStudentId() {
-        const year = new Date().getFullYear().toString().substr(-2);
-        const random = Math.floor(1000 + Math.random() * 9000);
-        return `SIS${year}${random}`;
-    }
-    
-    // Auto-fill student ID if not exists
-    document.getElementById('studentForm').addEventListener('submit', function(e) {
-        const studentIdInput = document.querySelector('input[name="student_id"]');
-        if (!studentIdInput || !studentIdInput.value) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'student_id';
-            input.value = generateStudentId();
-            this.appendChild(input);
-        }
-    });
-</script>
-@endpush
+<div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+    <form action="{{ route('admin.students.store') }}" method="POST">
+        @csrf
+        
+        <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 32px; color: var(--primary);">
+            <i class="bi bi-person-badge-fill" style="margin-right: 8px;"></i> Data Pribadi Siswa
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+            <div style="grid-column: span 2;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Nama Lengkap Siswa</label>
+                <input type="text" name="name" class="search-input uppercase-input" placeholder="Masukkan nama lengkap siswa" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Tempat, Tanggal Lahir</label>
+                <input type="text" name="birth_place_date" class="search-input uppercase-input" placeholder="Contoh: Bandung, 12 Mei 2010">
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
+                <select name="grade" id="grade_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptions()" required>
+                    <option value="">Pilih Jenjang</option>
+                    <option value="SD">SD</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                </select>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Sekolah/Asal Instansi</label>
+                <input type="text" name="school" class="search-input uppercase-input" placeholder="Contoh: SMAN 1 Bandung" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Program yang Diambil</label>
+                <select name="program" id="program_select" class="search-input" style="padding-left: 16px;" required>
+                    <option value="Reguler">Reguler</option>
+                </select>
+            </div>
+        </div>
+
+        <script>
+            function updateProgramOptions() {
+                const grade = document.getElementById('grade_select').value;
+                const programSelect = document.getElementById('program_select');
+                
+                // Clear existing options
+                programSelect.innerHTML = '';
+                
+                if (grade === 'SMA') {
+                    const options = ['Reguler', 'SNBT'];
+                    options.forEach(opt => {
+                        const el = document.createElement('option');
+                        el.value = opt;
+                        el.textContent = opt;
+                        programSelect.appendChild(el);
+                    });
+                } else {
+                    const el = document.createElement('option');
+                    el.value = 'Reguler';
+                    el.textContent = 'Reguler';
+                    programSelect.appendChild(el);
+                }
+            }
+        </script>
+
+        <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 32px; color: var(--primary);">
+            <i class="bi bi-house-door-fill" style="margin-right: 8px;"></i> Data Orang Tua & Alamat
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Nama Orang Tua / Wali</label>
+                <input type="text" name="parent_name" class="search-input uppercase-input" placeholder="Masukkan nama orang tua" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">No. WhatsApp Orang Tua</label>
+                <input type="text" name="parent_phone" class="search-input" placeholder="Contoh: 081234567890" required>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Email Orang Tua (Opsional)</label>
+                <input type="email" name="parent_email" class="search-input" placeholder="orangtua@email.com">
+            </div>
+            
+            <div style="grid-column: span 2;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Alamat Lengkap</label>
+                <textarea name="address" class="search-input uppercase-input" style="height: 100px; padding: 12px; resize: none;" placeholder="Masukkan alamat lengkap rumah"></textarea>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.125rem; font-weight: 700; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 8px; margin-bottom: 32px; color: var(--primary);">
+            <i class="bi bi-calendar-check-fill" style="margin-right: 8px;"></i> Pengaturan Tagihan Otomatis
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid var(--border);">
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Tanggal Pendaftaran</label>
+                <input type="date" name="registration_date" class="search-input" value="{{ date('Y-m-d') }}" required>
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">Tanggal ini akan menjadi pemicu tagihan bulanan.</small>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Biaya Kursus Per Bulan</label>
+                <div class="input-group">
+                    <span class="input-prefix">Rp</span>
+                    <input type="hidden" name="monthly_fee" id="raw_monthly_fee">
+                    <input type="text" id="display_monthly_fee" class="search-input" style="padding-left: 48px; font-weight: 700; color: var(--primary);" placeholder="0" required oninput="formatFee(this)">
+                </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">Nominal tagihan yang digenerate otomatis.</small>
+            </div>
+        </div>
+
+        <script>
+            function formatFee(input) {
+                let value = input.value.replace(/[^0-9]/g, '');
+                document.getElementById('raw_monthly_fee').value = value;
+                if (value) {
+                    input.value = new Intl.NumberFormat('id-ID').format(value);
+                } else {
+                    input.value = '';
+                }
+            }
+        </script>
+
+        <div style="display: flex; gap: 16px; justify-content: flex-end;">
+            <button type="reset" style="padding: 12px 24px; border-radius: 10px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer;">Reset Form</button>
+            <button type="submit" class="btn-premium" style="padding: 12px 40px; font-size: 1rem;">
+                <i class="bi bi-check-circle-fill" style="margin-right: 8px;"></i> Selesaikan Pendaftaran
+            </button>
+        </div>
+    </form>
+</div>
 @endsection
