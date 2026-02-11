@@ -29,14 +29,20 @@
                 <input type="text" name="birth_place_date" class="search-input uppercase-input" placeholder="Contoh: Bandung, 12 Mei 2010">
             </div>
             
-            <div>
-                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
-                <select name="grade" id="grade_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptions()" required>
-                    <option value="">Pilih Jenjang</option>
-                    <option value="SD">SD</option>
-                    <option value="SMP">SMP</option>
-                    <option value="SMA">SMA</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Jenjang Kelas</label>
+                    <select name="grade" id="grade_select" class="search-input" style="padding-left: 16px;" onchange="updateProgramOptions()" required>
+                        <option value="">Pilih Jenjang</option>
+                        <option value="SD">SD</option>
+                        <option value="SMP">SMP</option>
+                        <option value="SMA">SMA</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px;">Kelas</label>
+                    <input type="text" name="classroom" class="search-input uppercase-input" placeholder="Misal: 10 IPA 1">
+                </div>
             </div>
             
             <div>
