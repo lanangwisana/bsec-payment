@@ -31,7 +31,7 @@ class PaymentController extends Controller
 
         Payment::create([
             'invoice_id' => $invoice->id,
-            'user_id' => Auth::id() ?? 1,
+            'user_id' => Auth::id(),
             'amount' => $request->input('amount'),
             'method' => $request->input('method'),
             'paid_at' => $request->input('paid_at'),
